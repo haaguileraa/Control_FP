@@ -4,14 +4,9 @@
 
 // constantes de la planta
 
-float cd = 0.8;
-float rho = 1.225;
-float radio = 3/1000;
-float m = 0.4/1000;
-float g = 9.8;
-float Area = 3.14*radio*radio;
-
-float alpha = 0.5*cd*rho*Area;
+float m = 0.04;
+float g = 10;
+float alpha = 0.02356;
 float pp = alpha/m;
 
 // constantes del PID
@@ -26,10 +21,10 @@ float A = 3.14;
 float I=0, Iant=0;
 float eant=0;
 float DE=0;
-float r = 1;
-float kp = 2000;
-float ki = 5000;
-float kd = 2000;
+float r = 0.25;
+float kp = 5;
+float ki = 1;
+float kd = .001;
 float kib = ki*D;
 float kdb = kd/D;
 float e = 0;
@@ -67,7 +62,7 @@ void control()
     // Control 
       
     
-    e = r-h;
+    e = r-hn;
     P = kp*e;
     I = Iant+kib*e;
     DE = kdb*(e-eant);
@@ -77,8 +72,8 @@ void control()
     eant = e; 
     
     // planta en lazo abierto
-    hn = h/(3.14*Fs) - hant/(3.14*Fs);
-    h = hant;
+    //hn = h/(3.14*Fs) - hant/(3.14*Fs);
+    //hant=h;
     hn2 =  hn + pp*((u-hn)*(u-hn))/(3.14*Fs) -g/(3.14*Fs); 
     hn = hn2;
  

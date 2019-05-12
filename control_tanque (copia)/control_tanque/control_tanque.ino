@@ -61,7 +61,14 @@ void control()
     e = r-h;
     P = kp*e;
     I = Iant+kib*e;
-    DE = kdb*(e-eant);
+    DE = kdb*(e-eant);  // = Kd* (de(t))/dt 
+    /*	D(t) = accion derivativa
+    
+	Discreto
+	D=delta
+	D(t)= [kd*(e(t+D)-e(t))]/D 
+	kdb= kd/D
+	 */
     u = P+I+DE; //P+I;
     
     Iant = I; 
