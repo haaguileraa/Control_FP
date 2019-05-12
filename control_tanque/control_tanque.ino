@@ -1,96 +1,86 @@
-
 #include "TimerOne.h"
-
-//------------Constantes del Levitador-------------\\
-
-float ro = 1.2; //Kg/m^3
-float Cd = 20; //Segun ejemplo del profe
-float St = 1.96*pow(10,-5); // 3.14159265*(0.025)^2  //Area sec. transv.
-float alpha = (Cd*ro*St)/2;
 
 
 // constantes del PID
 
+float u = 0;  //Voltaje del ventilador
+float ro = 1.223; //Densidad del aire seco
+float Cd = 0.5;   //Coeficiente aerodinamico de una esfera.
+float alpha = Cd * ro / 2; //Constante de presión del aire
+float tao = 0.1;  //Constante motor
+float k = 1;    //Constante motor
+float m = 0.4;  //Masa bola
+float g = 9.8;  //Gravedad
+float L = 10;   //Largo del tubo
 
-float u=0;
-float h=0, hn=0;
-int n=0;
-int Fs = 200;
-float D = (float)1/Fs;
-long Ts =1000000/Fs; 
-float A = 3.14;
-float a = .5;
-float b = 1;
-float p1 = -D*a/A ;
-float p2 = D*b/A;
-float r = 1;
-float I=0, Iant=0;
-float eant=0;
-float DE=0;
+//Planta
+float x1, x2, Va = 0;
+float dx1, dx2, dVa;
+int Van;
+
+////Linealización
+//float x1d = x1 - L / 2;
+//float x2d = x2;
+//float Vad = Va - sqrt(m*g / alpha);
+//float Ud = u - 1 / k * sqrt(m*g / alpha);
+
+//Variable timer
+int Fs = 1000; //Frecuencia de Operación
+float D = (float)1 / Fs;  //Tiempo de muestreo
+long Ts = 1000000 / Fs;   //Tiempo del timer 5ms
+int n = 0;    //Variable para cambiar la referencia
+float r = L/2;  //Referencia
+float e = 0;  //Error
+//Control proporcional
 float kp = 2;
-float ki = 2;
-float kd = 2;
-float kib = ki*D;
-float kdb = kd/D;
-float e = 0;
-
-float P=0;
-// filtro diseñado para wp = 0.1 en frecuencia normalizada 
+float P = 0;
+//Control integral
+float ki = 5;
+float kib = ki * D;
+float I = 0, Iant = 0;
 
 void setup() {
-   Serial.begin(2000000);
-    while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
-    }
-    // timer para ajustar la interrupcion
-    Timer1.initialize(Ts);        
-    Timer1.attachInterrupt(control);
-
+  Serial.begin(9600);
+  // timer para ajustar la interrupcion
+  Timer1.initialize(Ts);
+  Timer1.attachInterrupt(control);
 }
-
-
-
 
 void control()
 {
-    n+=1;
-
-   if (n % 2500==0){
-    if (r <2){
+  n += 1;
+  if (n % 2500 == 0) {
+    if (r < 2) {
       r = 2;
     }
     else
       r = 1;
-   } 
-    // Control 
-      
-    
-    e = r-h;
-    P = kp*e;
-    I = Iant+kib*e;
-    DE = kdb*(e-eant);
-    u = P+I+DE; //P+I;
-    
-    Iant = I; 
-    eant = e; 
-    
-    // planta en lazo abierto
-   
-    hn = h + p1*sqrt(h) + p2*u; 
-    h = hn;
- 
-if (n % 5==0){
-
-Serial.print(r,3);
-Serial.print('\t');
-Serial.println(h,3);
-} 
-
-}
-
-
-
-
-// main loop no hace nada
-void loop(){
   }
+  // Control
+  e = r - x1;
+  P = kp * e;
+  I = Iant + kib * e;
+  u = P + I;
+  if (u>12) u=12;
+  Iant = I;
+
+  Van=(Va - x2);
+  dx1 = D*x2 + x1;
+  dx2 = D*alpha / m * sq(Van) - D*g + x2;
+  dVa = -D / tao * Va + D* k / tao * u + Va;
+  
+  x1 = dx1;
+  x2 = dx2;
+  Va = dVa;
+
+  if(x1<0){
+    x1=0;
+    x2=0;
+  }
+    
+    Serial.print(r);
+    Serial.print(" ");
+    Serial.println(x1);
+}
+void loop() {
+}
