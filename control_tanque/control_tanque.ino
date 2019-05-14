@@ -1,7 +1,7 @@
 #include "TimerOne.h"
 
 
-// constantes del PID
+// constantes de la planta
 
 float u = 0;  //Voltaje del ventilador
 float ro = 1.223; //Densidad del aire seco
@@ -24,6 +24,7 @@ int Van;
 //float Vad = Va - sqrt(m*g / alpha);
 //float Ud = u - 1 / k * sqrt(m*g / alpha);
 
+// constantes del PID
 //Variable timer
 int Fs = 1000; //Frecuencia de Operación
 float D = (float)1 / Fs;  //Tiempo de muestreo
@@ -35,12 +36,12 @@ float e = 0;  //Error
 float kp = 2;
 float P = 0;
 //Control integral
-float ki = 5;
+float ki = 1;
 float kib = ki * D;
 float I = 0, Iant = 0;
 
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(2000000);
   // timer para ajustar la interrupcion
   Timer1.initialize(Ts);
   Timer1.attachInterrupt(control);
@@ -50,8 +51,8 @@ void control()
 {
   n += 1;
   if (n % 2500 == 0) {
-    if (r < 2) {
-      r = 2;
+    if (r < L/2) {
+      r = L/2;
     }
     else
       r = 1;
@@ -78,9 +79,11 @@ void control()
     x2=0;
   }
     
-    Serial.print(r);
-    Serial.print(" ");
+    //Serial.print(r);
     Serial.println(x1);
+    //Serial.print(" ");
+    //Serial.println(r);
+    //Serial.println(x1);
 }
 void loop() {
 }

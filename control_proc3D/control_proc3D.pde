@@ -28,7 +28,7 @@ int db = d-5, //diámetro de la bolita
     posXbol= posX+d/2, // posición x de la bolita para que quede centrada en la probeta
     r= db/2; //radio de la esfera
 
-int x1 = L/2+posY;  //510 abajo, 300: centro  //Se obtiene de arduino
+float x1 = 0;// L/2+posY;  //510 abajo, 300: centro  //Se obtiene de arduino
 int va = -5;
 float rx  = 0;
 float ry  = 0;
@@ -38,7 +38,8 @@ int tope_s = posY+db/2+10,  //+10 para que no se salga de la probeta
 //---valores para animar con entrada de arduino---/
 Serial senalArd;
 
-
+//Nuestra mitad de la probeta 
+float half = (L-posY)/2; //= 225;
 
 void setup() {
   //ventana
@@ -47,21 +48,51 @@ void setup() {
   
   ///*
   //Arduino: 
-  String puerto ="/dev/ttyUSB0";  //Cambiar por el puerto en el que esté el arduino
-  print(puerto);
+  String puerto ="/dev/ttyACM0";  //Cambiar por el puerto en el que esté el arduino
+  //print(puerto);
   senalArd= new Serial(this, puerto, 2000000); //tercer argumento = baudios.*/
 }
 
 void draw() {
   //-----Delay
-
+  /*
   while (senalArd.available() > 0) {
-    int inByte = senalArd.read();
-    println(inByte);
-  //}
-  //delay(100);  // mejor al final??
+    float inByte = senalArd.read();
+    //println(inByte);
+    
+    //println(x1);
+    
+    }
+   delay(100);  // mejor al final?? */
 
 
+     // while (senalArd.available() > 0) {
+    int lf = 10;
+    // Expand array size to the number of bytes you expect:
+    byte[] inBuffer = new byte[7];
+    senalArd.readBytesUntil(lf, inBuffer);
+    if (inBuffer != null) {
+      String myString = new String(inBuffer);
+      //println(myString);
+      float inByte = float(myString)*45+225 ;
+      
+      if(inByte>0){
+        x1 = inByte;      
+        
+    //x1=100;
+      }
+      if(inByte<tope_s) {
+        x1 = tope_s;
+      
+      }// */
+      if(inByte>tope_i) {
+        x1 = tope_i;
+      
+      }// */
+
+    
+    println(x1);
+    
     //--------PROBETA-----------//
     pushStyle(); //new style
     fill(255, 255, 255);
@@ -83,9 +114,9 @@ void draw() {
     directionalLight(0, 10, 0, 0, 0, -10);
     translate(posXbol, x1,1);
     specular(255, 255, 255);
+    sphere(r);
     //rotateX(rx);
     //rotateY(ry);
-    sphere(r);
     popStyle();
     
     //rx = rx + 0.01;
@@ -93,9 +124,13 @@ void draw() {
     
     //Bolita (circulo):
     //circle(posXbol, x1, db);
+   // x1=inByte ;
+    //println(x1);
     
-    x1=senalArd.read();
     
+  
+    
+    //println(senalArd.read());
     //---Simulacion sin arduino---//
     /* x1 = x1 + va;
     
@@ -109,7 +144,7 @@ void draw() {
     }
   //---Fin simulacion sin arduino---//*/
  
- //probar
+    //probar
   }
-  delay(100);
+  //delay(1);
 }
