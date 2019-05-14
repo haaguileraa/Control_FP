@@ -43,7 +43,7 @@ Serial senalArd;
 void setup() {
   //ventana
   size(500, 700, P3D);
-  println(PI);
+ // println(PI);
   
   ///*
   //Arduino: 
@@ -53,51 +53,63 @@ void setup() {
 }
 
 void draw() {
-  //--------PROBETA-----------//
-  pushStyle(); //new style
-  fill(255, 255, 255);
-  rect(posX, posY, d, L);
-  popStyle(); //original style
+  //-----Delay
 
-  //--------BASE-----------//
-  pushStyle(); //new style
-  fill(0, 255, 0);
-  translate(0, 0);
-  quad(Ex1, Ey1, Ex2,Ey2, Ex3,Ey3 ,Ex4 ,Ey4 );
-  popStyle(); //original style
-  
-  //--------BOLITA-----------//
-  pushStyle();
-  noStroke();
-  fill(0, 51, 102);
-  lightSpecular(255, 255, 255);
-  directionalLight(0, 10, 0, 0, 0, -10);
-  translate(posXbol, x1,1);
-  specular(255, 255, 255);
-  //rotateX(rx);
-  //rotateY(ry);
-  sphere(r);
-  popStyle();
-  
-  //rx = rx + 0.01;
-  //ry = ry + va;
-  
-  //Bolita (circulo):
-  //circle(posXbol, x1, db);
-  
-  x1=senalArd.read();
-  
-   //---Simulacion sin arduino---//
-   /* x1 = x1 + va;
-   
-  if(x1<tope_s){
-    va=5;
+  while (senalArd.available() > 0) {
+    int inByte = senalArd.read();
+    println(inByte);
+  //}
+  //delay(100);  // mejor al final??
+
+
+    //--------PROBETA-----------//
+    pushStyle(); //new style
+    fill(255, 255, 255);
+    rect(posX, posY, d, L);
+    popStyle(); //original style
+
+    //--------BASE-----------//
+    pushStyle(); //new style
+    fill(0, 255, 0);
+    translate(0, 0);
+    quad(Ex1, Ey1, Ex2,Ey2, Ex3,Ey3 ,Ex4 ,Ey4 );
+    popStyle(); //original style
     
-  }
-  if(x1>tope_i){
-    va=-5;
+    //--------BOLITA-----------//
+    pushStyle();
+    noStroke();
+    fill(0, 51, 102);
+    lightSpecular(255, 255, 255);
+    directionalLight(0, 10, 0, 0, 0, -10);
+    translate(posXbol, x1,1);
+    specular(255, 255, 255);
+    //rotateX(rx);
+    //rotateY(ry);
+    sphere(r);
+    popStyle();
     
+    //rx = rx + 0.01;
+    //ry = ry + va;
+    
+    //Bolita (circulo):
+    //circle(posXbol, x1, db);
+    
+    x1=senalArd.read();
+    
+    //---Simulacion sin arduino---//
+    /* x1 = x1 + va;
+    
+    if(x1<tope_s){
+      va=5;
+      
+    }
+    if(x1>tope_i){
+      va=-5;
+      
+    }
+  //---Fin simulacion sin arduino---//*/
+ 
+ //probar
   }
- //---Fin simulacion sin arduino---//*/
-  
+  delay(100);
 }
