@@ -51,11 +51,11 @@ void control()
 {
   n += 1;
   if (n % 2500 == 0) {
-    if (r < L/2) {
-      r = L/2;
+    if (r < L) {
+      r = L;
     }
     else
-      r = 1;
+      r = 0;
   }
   // Control
   e = r - x1;
@@ -80,8 +80,9 @@ void control()
   }
     
     //Serial.print(r);
-    Serial.println(x1);
     //Serial.print(" ");
+    Serial.println(x1);
+    
     //Serial.println(r);
     //Serial.println(x1);
 }
