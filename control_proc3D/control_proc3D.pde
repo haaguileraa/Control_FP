@@ -42,7 +42,11 @@ Serial senalArd;
 //Nuestra mitad de la probeta 
 float half = L/2+posY; //= 225;
 float erre =0,
+      equis =0,
+      ki =0,
+      kp =0,
       inByte =0;
+    
 
 
 //---Para el BOX de los valores
@@ -50,7 +54,8 @@ float erre =0,
 int ancho  = 182 ,
     alto   = 40;
 
-
+float[] data;
+String buff;
 
 
 
@@ -68,12 +73,21 @@ void setup() {
   String puerto ="/dev/ttyACM0";  //Cambiar por el puerto en el que esté el arduino
   //print(puerto);
   senalArd= new Serial(this, puerto, 2000000); //tercer argumento = baudios.*/
-  senalArd.bufferUntil('\n');
+  senalArd.bufferUntil(10);//('\n');
 }
 
 void draw() {
   background(220,220,220);
-  inByte =L- erre*45 + posY;//+half;
+  
+  //---Obtener datos del Buff
+  if (buff!=null) data = float(splitTokens(buff));
+  equis = (data[0]);
+  erre = (data[1]);
+  kp = (data[2]);
+  ki = (data[3]);
+  
+  
+  inByte =L- equis*45 + posY;//+half;
      
    /* */
       
@@ -93,49 +107,71 @@ void draw() {
 
     //x1 = senalArd.read();
     //x1=inByte;
-    println(x1);
-   println(erre);
-   println(tope_i);
+   //println(x1);
+   //println(erre);
+   //println(tope_i);
     
     //--------PROBETA-----------//
     pushStyle(); //new style
-    fill(255, 255, 255);
-    rect(posX, posY, d, L);
+      fill(255, 255, 255);
+      rect(posX, posY, d, L);
     popStyle(); //original style
 
     //--------BASE-----------//
     pushStyle(); //new style
-    fill(0, 255, 0);
-    translate(0, 0);
-    quad(Ex1, Ey1, Ex2,Ey2, Ex3,Ey3 ,Ex4 ,Ey4 );
+      fill(0, 255, 0);
+      translate(0, 0);
+      quad(Ex1, Ey1, Ex2,Ey2, Ex3,Ey3 ,Ex4 ,Ey4 );
     popStyle(); //original style
     
-     //----------TEXTO----------//
-    
+  //----------TEXTO----------//
+    //------------X1------------//
     pushStyle(); //new style
-    textSize(32);
-    //fill(0, 0, 0);
-    translate(0,0);
-    rect(posX+200, posY, ancho, alto);
-    fill(0, 0, 0);
-    text("X1:", posX+210, posY+30);
-    textLeading(10);
-    text(erre, posX+260, posY+30);       
+      textSize(32);
+      //fill(0, 0, 0);
+      translate(0,0);
+      rect(posX+200, posY, ancho, alto);
+      fill(0, 0, 0);
+      text("X1:", posX+210, posY+30);
+      textLeading(10);
+      text(equis, posX+260, posY+30);       
     popStyle(); //original style
    
+    //------------r------------//
     pushStyle(); //new style
-    textSize(32);
-    //fill(0, 0, 0);
-    translate(0,0);
-    rect(posX+200, posY+70, ancho, alto);
-    fill(0, 0, 0);
-    text("r:", posX+210, posY+100);
-    textLeading(1);
-    text(erre, posX+260, posY+100);
+      textSize(32);
+      //fill(0, 0, 0);
+      translate(0,0);
+      rect(posX+200, posY+70, ancho, alto);
+      fill(0, 0, 0);
+      text("r:", posX+210, posY+100);
+      textLeading(1);
+      text(erre, posX+260, posY+100);
     popStyle(); //original style
  
-    
-    
+     //------------kp------------//
+    pushStyle(); //new style
+      textSize(32);
+      //fill(0, 0, 0);
+      translate(0,0);
+      rect(posX+200, posY+140, ancho, alto);
+      fill(0, 0, 0);
+      text("kp:", posX+210, posY+170);
+      textLeading(1);
+      text(kp, posX+260, posY+170);
+    popStyle(); //original style
+ 
+    //------------ki------------//
+    pushStyle(); //new style
+      textSize(32);
+      //fill(0, 0, 0);
+      translate(0,0);
+      rect(posX+200, posY+210, ancho, alto);
+      fill(0, 0, 0);
+      text("ki:", posX+210, posY+240);
+      textLeading(1);
+      text(ki, posX+260, posY+240);
+    popStyle(); //original style
     
     
     
@@ -143,13 +179,13 @@ void draw() {
     
     //--------BOLITA-----------//
     pushStyle();
-    noStroke();
-    fill(0, 51, 102);
-    lightSpecular(255, 255, 255);
-    directionalLight(0, 10, 0, 0, 0, -10);
-    translate(posXbol, x1,1);
-    specular(255, 255, 255);
-    sphere(r);
+      noStroke();
+      fill(0, 51, 102);
+      lightSpecular(255, 255, 255);
+      directionalLight(0, 10, 0, 0, 0, -10);
+      translate(posXbol, x1,1);
+      specular(255, 255, 255);
+      sphere(r);
     popStyle();
     
   
@@ -159,7 +195,7 @@ void draw() {
 
 //Serial event
 void serialEvent (Serial senalArd ){
- erre = float(senalArd.readStringUntil('\n')); 
+ buff = senalArd.readString();//float(senalArd.readStringUntil('\n')); 
 /*
 |int lf = 10;
     // Expand array size to the number of bytes you expect:

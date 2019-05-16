@@ -1,94 +1,108 @@
-
 #include "TimerOne.h"
 
+//Pines de los Potenciometros
+float pin_ki = A0;
+float pin_kp = A1;
+float pin_r  = A2;
 
-// constantes de la planta
+//--------Constantes de la planta---------//
 
-float m = 0.04;
-float g = 10;
-float alpha = 0.02356;
-float pp = alpha/m;
+float u = 0;  //Ventilador
+float ro = 1.223; //Densidad del aire seco
+float Cd = 0.5;   //Coeficiente aerodinamico de la esfera.
+float alpha = Cd * ro / 2; //Constante de presión del aire
+float tao = 0.1;  //Constante motor
+float k = 1;    //Constante motor
+float m = 0.4;  //Masa bola
+float g = 9.8;  //Gravedad
+float L = 10;   //Largo del tubo
+
+//Planta
+float x1, x2, Va = 0;
+float dx1, dx2, dVa;
+int Van;
+
+
 
 // constantes del PID
-
-int n = 0;
-float u=0;
-float hant=0, h=0, hn=0, hn2=0;
-int Fs = 200;
-float D = (float)1/Fs;
-long Ts =1000000/Fs; 
-float A = 3.14;
-float I=0, Iant=0;
-float eant=0;
-float DE=0;
-float r = 0.25;
-float kp = 5;
-float ki = 1;
-float kd = .001;
-float kib = ki*D;
-float kdb = kd/D;
-float e = 0;
-
-float P=0;
-// filtro diseñado para wp = 0.1 en frecuencia normalizada 
+//Variable timer
+int Fs = 1000; //Frecuencia de Operación
+float D = (float)1 / Fs;  //Tiempo de muestreo
+long Ts = 1000000 / Fs;   //Tiempo del timer 5ms
+int n = 0;    //Variable para cambiar la referencia
+float r = 0;//L/2;  //Referencia
+float e = 0;  //Error
+//Control proporcional
+float kp = 2;//2;
+float P = 0;
+//Control integral
+float ki = 1;//1;
+float kib = ki * D;
+float I = 0, Iant = 0;
+float alt =0;
 
 void setup() {
-   Serial.begin(2000000);
-    while (!Serial) {
-    ; // wait for serial port to connect. Needed for Leonardo only
-    }
-    // timer para ajustar la interrupcion
-    Timer1.initialize(Ts);        
-    Timer1.attachInterrupt(control);
-
+  Serial.begin(2000000);
+  // timer para ajustar la interrupcion
+  Timer1.initialize(Ts);
+  Timer1.attachInterrupt(control);
 }
-
-
-
 
 void control()
 {
-
-  n+=1;
-
- if (n % 2500==0){
-    if (r <2){
-      r = 2;
+  //-------Con potenciometro-------//
+  alt= analogRead(pin_r)/102.3; 
+  ki = 10-analogRead(pin_ki)/102.3;
+  kp = 10-analogRead(pin_kp)/102.3;
+  n += 1;
+  if (n % 1500 == 0) {//2500 == 0) {
+   if (r < (L-alt)) {
+      r = L-alt;
     }
     else
-      r = 1;
-   } 
-  
-    // Control 
-      
-    
-    e = r-hn;
-    P = kp*e;
-    I = Iant+kib*e;
-    DE = kdb*(e-eant);
-    u = P+I+DE; //P+I;
-    
-    Iant = I; 
-    eant = e; 
-    
-    // planta en lazo abierto
-    //hn = h/(3.14*Fs) - hant/(3.14*Fs);
-    //hant=h;
-    hn2 =  hn + pp*((u-hn)*(u-hn))/(3.14*Fs) -g/(3.14*Fs); 
-    hn = hn2;
+      r = 0;
+  } // */
+
  
- if (n % 5==0){
+/*
+Serial.print(ki); //
+Serial.print(" "); //
+Serial.println(kp); //
+//Serial.print(alt); //
+Serial.print(" "); //
+Serial.println(r); //*/
+  // Control
+  e = r - x1;
+  P = kp * e;
+  I = Iant + kib * e;
+  u = P + I;
+  if (u>12) u=12;
+  Iant = I;
 
-Serial.print(r,3);
-Serial.print('\t');
-Serial.println(hn,3);
-} 
+  Van=(Va - x2);
+  dx1 = D*x2 + x1;
+  dx2 = D*alpha / m * sq(Van) - D*g + x2;
+  dVa = -D / tao * Va + D* k / tao * u + Va;
+  
+  x1 = dx1;
+  x2 = dx2;
+  Va = dVa;
 
-}
-
-
-
-
-// main loop no hace nada
-void loop(){
+  if(x1<0){
+    x1=0;
+    x2=0;
   }
+    
+    Serial.print(x1);
+    Serial.print(" ");
+    Serial.print(r);
+    Serial.print(" "); 
+    Serial.print(kp);
+    Serial.print(" ");
+    Serial.println(ki); //*/
+    //Serial.println(r);
+    //Serial.println(x1);
+}
+void loop() {
+ 
+}
