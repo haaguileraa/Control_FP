@@ -1,8 +1,7 @@
 #include "TimerOne.h"
-
 //Pines de los Potenciometros
 float pin_ki = A0;
-float pin_kp = A1;
+float pin_kp = A1;  
 float pin_r  = A2;
 
 //--------Constantes de la planta---------//
@@ -22,6 +21,7 @@ float x1, x2, Va = 0;
 float dx1, dx2, dVa;
 int Van;
 
+int desv = 1; //desviamos 1v
 
 
 // constantes del PID
@@ -50,12 +50,21 @@ void setup() {
 
 void control()
 {
-  //-------Con potenciometro-------//
+  //------- Con potenciometro-------//
   alt= analogRead(pin_r)/102.3; 
   ki = 10-analogRead(pin_ki)/102.3;
   kp = 10-analogRead(pin_kp)/102.3;
   n += 1;
-  if (n % 1500 == 0) {//2500 == 0) {
+   if (n % 1500 == 0) {//2500 == 0) {
+   if (r < (L-alt)+desv) {
+      r = L-alt+desv;
+    }
+    else
+      r = L-alt-desv;
+  } // */
+
+ 
+ /* if (n % 1500 == 0) {//2500 == 0) {
    if (r < (L-alt)) {
       r = L-alt;
     }
@@ -87,7 +96,9 @@ Serial.println(r); //*/
   x1 = dx1;
   x2 = dx2;
   Va = dVa;
-
+  if(x1>30){
+    x1=30;
+  }
   if(x1<0){
     x1=0;
     x2=0;
@@ -95,12 +106,12 @@ Serial.println(r); //*/
     
     Serial.print(x1);
     Serial.print(" ");
-    Serial.print(r);
-    Serial.print(" "); 
-    Serial.print(kp);
-    Serial.print(" ");
-    Serial.println(ki); //*/
-    //Serial.println(r);
+    //Serial.print(r);
+   // Serial.print(" "); 
+   // Serial.print(kp);
+    //Serial.print(" ");
+    //Serial.println(ki); //*/
+    Serial.println(r);
     //Serial.println(x1);
 }
 void loop() {
