@@ -12,26 +12,28 @@ float Cd = 0.5;   //Coeficiente aerodinamico de la esfera.
 float alpha = Cd * ro / 2; //Constante de presión del aire
 float tao = 0.1;  //Constante motor
 float k = 1;    //Constante motor
-float m = 0.4;  //Masa bola
+float m = 0.4;  //Masa bolita
 float g = 9.8;  //Gravedad
-float L = 10;   //Largo del tubo
+float L = 10;   //Largo de la probeta
 
 //Planta
 float x1, x2, Va = 0;
 float dx1, dx2, dVa;
 int Van;
 
-int desv = 1; //desviamos 1v
+float desv = 1; //desviamos 1cm
 
 
-// constantes del PID
+//---------PI---------//
 //Variable timer
 int Fs = 1000; //Frecuencia de Operación
 float D = (float)1 / Fs;  //Tiempo de muestreo
 long Ts = 1000000 / Fs;   //Tiempo del timer 5ms
 int n = 0;    //Variable para cambiar la referencia
+//float
 float r = 0;//L/2;  //Referencia
 float e = 0;  //Error
+
 //Control proporcional
 float kp = 2;//2;
 float P = 0;
@@ -41,6 +43,7 @@ float kib = ki * D;
 float I = 0, Iant = 0;
 float alt =0;
 
+//--------------SETUP-----------//
 void setup() {
   Serial.begin(2000000);
   // timer para ajustar la interrupcion
@@ -51,18 +54,22 @@ void setup() {
 void control()
 {
   //------- Con potenciometro-------//
-  alt= analogRead(pin_r)/102.3; 
+  /*alt= L-analogRead(pin_r)/102.3; 
   ki = 10-analogRead(pin_ki)/102.3;
-  kp = 10-analogRead(pin_kp)/102.3;
+  kp = 10-analogRead(pin_kp)/102.3; // / */
+  alt =5;
+  ki=0;
+  kp=14.5;
   n += 1;
    if (n % 1500 == 0) {//2500 == 0) {
-   if (r < (L-alt)+desv) {
-      r = L-alt+desv;
+   if (r < (alt+desv)) {
+      r = alt;
     }
     else
-      r = L-alt-desv;
+      r = alt-desv;
   } // */
 
+   //}
  
  /* if (n % 1500 == 0) {//2500 == 0) {
    if (r < (L-alt)) {
@@ -73,18 +80,13 @@ void control()
   } // */
 
  
-/*
-Serial.print(ki); //
-Serial.print(" "); //
-Serial.println(kp); //
-//Serial.print(alt); //
-Serial.print(" "); //
-Serial.println(r); //*/
-  // Control
+/**/
+
+  //----------- Control -------------//
   e = r - x1;
-  P = kp * e;
-  I = Iant + kib * e;
-  u = P + I;
+  P = kp * e; //Proporcional
+  I = Iant + kib * e; //Integral
+  u = P + I;  //señal de control
   if (u>12) u=12;
   Iant = I;
 
@@ -106,13 +108,11 @@ Serial.println(r); //*/
     
     Serial.print(x1);
     Serial.print(" ");
-    //Serial.print(r);
-   // Serial.print(" "); 
-   // Serial.print(kp);
-    //Serial.print(" ");
-    //Serial.println(ki); //*/
-    Serial.println(r);
-    //Serial.println(x1);
+    Serial.print(r);
+    Serial.print(" "); 
+    Serial.print(kp);
+   Serial.print(" ");
+   Serial.println(ki); // */
 }
 void loop() {
  
